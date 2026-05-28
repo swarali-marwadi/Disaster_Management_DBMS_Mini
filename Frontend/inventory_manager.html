@@ -339,6 +339,35 @@
 </div>
 
 <script>
+const token = localStorage.getItem("token");
+
+// Security check: If they don't have a token, kick them back to login immediately
+if (!token) {
+    alert("Please log in to access this page.");
+    window.location.href = "login.html";
+}
+
+// ===== SECURE FETCH HELPER =====
+// This function automatically adds the JWT badge to every request
+// and kicks the user out if the token is expired.
+async function secureFetch(url, options = {}) {
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 || response.status === 403) {
+        alert("Your session has expired or you do not have permission. Please log in again.");
+        logout();
+        throw new Error("Unauthorized access");
+    }
+
+    return response;
+}
+
 // ===== GET URL PARAMETERS =====
 const urlParams = new URLSearchParams(window.location.search);
 const inventoryId = urlParams.get("inventory_id");
@@ -423,7 +452,14 @@ async function loadPendingRequests() {
     const count = document.getElementById("pendingRequestsCount");
 
     try {
-        const response = await fetch("http://localhost:5000/requests");
+        const response = await secureFetch("http://localhost:5000/requests", {
+            method: "GET", // Always good practice to specify the method
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // <-- SHOWING THE ID BADGE
+            }
+        });
+
         const data = await response.json();
 
         if (!data.success || !data.requests || data.requests.length === 0) {
@@ -545,9 +581,9 @@ async function loadCompletedRequests() {
 async function loadSupplierFormOptions() {
     try {
         const [suppliers, inventories, resources] = await Promise.all([
-            fetch("http://localhost:5000/suppliers").then(r => r.json()),
-            fetch("http://localhost:5000/inventories").then(r => r.json()),
-            fetch("http://localhost:5000/resources-simple").then(r => r.json())
+            secureFetch("http://localhost:5000/suppliers").then(r => r.json()),
+            secureFetch("http://localhost:5000/inventories").then(r => r.json()),
+            secureFetch("http://localhost:5000/resources-simple").then(r => r.json())
         ]);
 
         const supplierSelect = document.getElementById("supplierSelect");
@@ -854,7 +890,7 @@ document.getElementById("dispatchForm").addEventListener("submit", async functio
     const quantity = parseInt(document.getElementById("dispatchQty").value);
 
     try {
-        const response = await fetch("http://localhost:5000/dispatch", {
+        const response = await secureFetch("http://localhost:5000/dispatch", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -6,6 +6,9 @@ const path = require("path");
 const app = express();
 app.use(cors());
 app.use(express.json());
+require("dotenv").config(); 
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // DB connection
 const db = mysql.createConnection({
@@ -81,25 +84,62 @@ app.get("/test", (req, res) => {
 
 // ===== LOGIN API =====
 app.post("/login", async (req, res) => {
-    const { email, role } = req.body;
+    const { email, password } = req.body; // Notice we now take a password, not just a role
     try {
-        // Simple login - just validate role
-        const validRoles = ["Admin", "Inventory Manager", "Camp Manager", "Supplier"];
-        if (!validRoles.includes(role)) {
-            return res.status(400).json({ success: false, message: "Invalid role" });
+        // 1. Find the user in the database
+        const [users] = await dbPromise.query("SELECT * FROM users WHERE email = ?", [email]);
+        
+        if (users.length === 0) {
+            return res.status(401).json({ success: false, message: "Invalid email or password" });
+        }
+
+        const user = users[0];
+
+        // 2. Compare the typed password with the hashed password in the DB
+        const validPassword = await bcrypt.compare(password, user.password_hash);
+        if (!validPassword) {
+            return res.status(401).json({ success: false, message: "Invalid email or password" });
         }
         
-        // Return success with user session info
+        // 3. Generate the JWT (The ID Badge)
+        const token = jwt.sign(
+            { userId: user.user_id, role: user.role, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: "8h" } // Badge expires in 8 hours
+        );
+
+        // 4. Send the token and role back to the frontend
         res.json({
             success: true,
-            role: role,
-            email: email,
-            redirect: getRedirectPath(role)
+            token: token,
+            role: user.role,
+            email: user.email,
+            redirect: getRedirectPath(user.role)
         });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+
+// ===== THE MIDDLEWARE BOUNCER =====
+function authenticateToken(req, res, next) {
+    // The frontend sends the token in the 'Authorization' header
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: "Access Denied: No Token Provided" });
+    }
+
+    // Verify the badge using your secret key
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: "Invalid or Expired Token" });
+        }
+        req.user = user; // Attach the user info to the request
+        next(); // Let them pass to the API route
+    });
+}
 
 function getRedirectPath(role) {
     switch(role) {
@@ -817,16 +857,20 @@ app.get("/inventory", async (req, res) => {
 });
 
 // ===== DISPATCH RESOURCES (Inventory Manager) =====
-app.post("/dispatch", async (req, res) => {
+app.post("/dispatch", authenticateToken,async (req, res) => {
     const { requestId, quantitySupplied } = req.body;
     const dispatchQuantity = parseInt(quantitySupplied, 10);
+
+    if (req.user.role !== 'Inventory Manager' && req.user.role !== 'Admin') {
+        return res.status(403).json({ success: false, message: "Only Inventory Managers can dispatch resources." });
+    }
     
     try {
         if (!requestId || !dispatchQuantity || dispatchQuantity <= 0) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
 
-        // Get request details
+        // Get request details (Outside the transaction to validate first)
         const [requests] = await dbPromise.query(
             "SELECT * FROM resource_request WHERE request_id = ?",
             [requestId]
@@ -841,7 +885,6 @@ app.post("/dispatch", async (req, res) => {
             return res.status(400).json({ success: false, message: "Request is already completed" });
         }
 
-        // Get total supplied so far for this request
         const [fulfillments] = await dbPromise.query(
             "SELECT IFNULL(SUM(quantity_supplied), 0) AS totalSupplied FROM request_fulfillment WHERE request_id = ?",
             [requestId]
@@ -856,82 +899,94 @@ app.post("/dispatch", async (req, res) => {
             });
         }
 
-        // Get inventory stock
-        const [stocks] = await dbPromise.query(
-            `SELECT * FROM inventory_stock 
-             WHERE resource_id = ?
-             ORDER BY quantity_available DESC
-             LIMIT 1`,
-            [request.resource_id]
-        );
+        // --- BEGIN SQL TRANSACTION ---
+        await dbPromise.query("START TRANSACTION");
 
-        if (stocks.length === 0) {
-            return res.status(400).json({ success: false, message: "Inventory not found" });
-        }
+        try {
+            // 1. Get inventory stock with a ROW LOCK (FOR UPDATE)
+            // This prevents anyone else from editing this row while we are looking at it.
+            const [stocks] = await dbPromise.query(
+                `SELECT * FROM inventory_stock 
+                 WHERE resource_id = ?
+                 ORDER BY quantity_available DESC
+                 LIMIT 1 FOR UPDATE`,
+                [request.resource_id]
+            );
 
-        const stock = stocks[0];
+            if (stocks.length === 0 || Number(stocks[0].quantity_available) < dispatchQuantity) {
+                // If there isn't enough, we cancel the transaction before making changes.
+                await dbPromise.query("ROLLBACK");
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Insufficient inventory. Available: " + (stocks.length > 0 ? stocks[0].quantity_available : 0)
+                });
+            }
 
-        // Check if sufficient quantity available
-        if (Number(stock.quantity_available) < dispatchQuantity) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Insufficient inventory. Available: " + stock.quantity_available 
+            const stock = stocks[0];
+            const cumulativeSupplied = totalSuppliedSoFar + dispatchQuantity;
+
+            // 2. Update central inventory
+            const newQuantity = Number(stock.quantity_available) - dispatchQuantity;
+            await dbPromise.query(
+                "UPDATE inventory_stock SET quantity_available = ? WHERE inv_stock_id = ?",
+                [newQuantity, stock.inv_stock_id]
+            );
+
+            // 3. Update camp stock
+            const [campStocks] = await dbPromise.query(
+                `SELECT * FROM camp_stock WHERE camp_id = ? AND resource_id = ? LIMIT 1`,
+                [request.camp_id, request.resource_id]
+            );
+
+            if (campStocks.length > 0) {
+                const campStock = campStocks[0];
+                const updatedCampQuantity = Number(campStock.quantity_available) + dispatchQuantity;
+                await dbPromise.query(
+                    "UPDATE camp_stock SET quantity_available = ? WHERE stock_id = ?",
+                    [updatedCampQuantity, campStock.stock_id]
+                );
+            } else {
+                await dbPromise.query(
+                    `INSERT INTO camp_stock (camp_id, resource_id, quantity_available)
+                     VALUES (?, ?, ?)`,
+                    [request.camp_id, request.resource_id, dispatchQuantity]
+                );
+            }
+
+            // 4. Create fulfillment record
+            const fulfillmentDate = new Date().toISOString().split('T')[0];
+            const fulfillmentStatus = cumulativeSupplied >= request.quantity_required ? "COMPLETED" : "PARTIAL";
+            
+            const [result] = await dbPromise.query(
+                `INSERT INTO request_fulfillment (request_id, quantity_supplied, fulfillment_date, fulfillment_status)
+                 VALUES (?, ?, ?, ?)`,
+                [requestId, dispatchQuantity, fulfillmentDate, fulfillmentStatus]
+            );
+
+            // 5. Update request status
+            await dbPromise.query(
+                "UPDATE resource_request SET status = ? WHERE request_id = ?",
+                [fulfillmentStatus, requestId]
+            );
+
+            // --- ALL SUCCESSFUL: COMMIT THE TRANSACTION ---
+            await dbPromise.query("COMMIT");
+
+            res.json({
+                success: true,
+                message: "Dispatch recorded successfully with full transactional integrity.",
+                fulfillmentId: result.insertId,
+                cumulativeSupplied,
+                remainingQuantity: Math.max(0, Number(request.quantity_required) - cumulativeSupplied)
             });
+
+        } catch (transactionError) {
+            // --- ERROR OCCURRED: ROLLBACK EVERYTHING ---
+            await dbPromise.query("ROLLBACK");
+            console.error("Transaction Error, Rolling back:", transactionError.message);
+            res.status(500).json({ success: false, message: "Database transaction failed. Changes reverted.", error: transactionError.message });
         }
 
-        const cumulativeSupplied = totalSuppliedSoFar + dispatchQuantity;
-
-        // Update inventory
-        const newQuantity = Number(stock.quantity_available) - dispatchQuantity;
-        await dbPromise.query(
-            "UPDATE inventory_stock SET quantity_available = ? WHERE inv_stock_id = ?",
-            [newQuantity, stock.inv_stock_id]
-        );
-
-        // Update camp stock
-        const [campStocks] = await dbPromise.query(
-            `SELECT * FROM camp_stock WHERE camp_id = ? AND resource_id = ? LIMIT 1`,
-            [request.camp_id, request.resource_id]
-        );
-
-        if (campStocks.length > 0) {
-            const campStock = campStocks[0];
-            const updatedCampQuantity = Number(campStock.quantity_available) + dispatchQuantity;
-            await dbPromise.query(
-                "UPDATE camp_stock SET quantity_available = ? WHERE stock_id = ?",
-                [updatedCampQuantity, campStock.stock_id]
-            );
-        } else {
-            await dbPromise.query(
-                `INSERT INTO camp_stock (camp_id, resource_id, quantity_available)
-                 VALUES (?, ?, ?)`,
-                [request.camp_id, request.resource_id, dispatchQuantity]
-            );
-        }
-
-        // Create fulfillment record
-        const fulfillmentDate = new Date().toISOString().split('T')[0];
-        const fulfillmentStatus = cumulativeSupplied >= request.quantity_required ? "COMPLETED" : "PARTIAL";
-        
-        const [result] = await dbPromise.query(
-            `INSERT INTO request_fulfillment (request_id, quantity_supplied, fulfillment_date, fulfillment_status)
-             VALUES (?, ?, ?, ?)`,
-            [requestId, dispatchQuantity, fulfillmentDate, fulfillmentStatus]
-        );
-
-        // Update request status based on cumulative supply
-        await dbPromise.query(
-            "UPDATE resource_request SET status = ? WHERE request_id = ?",
-            [fulfillmentStatus, requestId]
-        );
-
-        res.json({
-            success: true,
-            message: "Dispatch recorded successfully",
-            fulfillmentId: result.insertId,
-            cumulativeSupplied,
-            remainingQuantity: Math.max(0, Number(request.quantity_required) - cumulativeSupplied)
-        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

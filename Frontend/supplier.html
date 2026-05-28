@@ -160,6 +160,34 @@
 </div>
 
 <script>
+    const token = localStorage.getItem("token");
+
+// 1. Kick out unauthenticated users
+if (!token) {
+    alert("Please log in to access this page.");
+    window.location.href = "login.html";
+}
+
+// 2. The secure fetch helper
+async function secureFetch(url, options = {}) {
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 || response.status === 403) {
+        alert("Your session has expired. Please log in again.");
+        localStorage.clear();
+        window.location.href = "login.html";
+        throw new Error("Unauthorized access");
+    }
+
+    return response;
+}
+
 // ===== GET URL PARAMETERS =====
 const urlParams = new URLSearchParams(window.location.search);
 const supplierId = urlParams.get("supplier_id");
@@ -217,7 +245,7 @@ async function loadSupplierProfile() {
     }
 
     try {
-        const response = await fetch("http://localhost:5000/suppliers");
+        const response = await secureFetch("http://localhost:5000/suppliers");
         const data = await response.json();
 
         if (data.success && Array.isArray(data.suppliers)) {
@@ -255,7 +283,7 @@ async function loadPendingSupplierOrders() {
         const endpoint = supplierId
             ? `http://localhost:5000/supplier-orders?supplier_id=${supplierId}`
             : "http://localhost:5000/supplier-orders";
-        const response = await fetch(endpoint);
+        const response = await secureFetch(endpoint);
         const data = await response.json();
 
         if (!data.success || !data.orders || data.orders.length === 0) {
@@ -313,7 +341,7 @@ async function completeSupplierOrder(orderId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/supply/${orderId}/approve`, {
+        const response = await secureFetch(`http://localhost:5000/supply/${orderId}/approve`, {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         });
@@ -341,7 +369,7 @@ async function loadSupplyHistory() {
         const endpoint = supplierId
             ? `http://localhost:5000/supplier-deliveries?supplier_id=${supplierId}`
             : "http://localhost:5000/supplier-deliveries";
-        const response = await fetch(endpoint);
+        const response = await secureFetch(endpoint);
         const data = await response.json();
 
         if (!data.success || !data.deliveries || data.deliveries.length === 0) {

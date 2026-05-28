@@ -246,6 +246,34 @@
 </div>
 
 <script>
+    const token = localStorage.getItem("token");
+
+// 1. Kick out unauthenticated users
+if (!token) {
+    alert("Please log in to access this page.");
+    window.location.href = "login.html";
+}
+
+// 2. The secure fetch helper
+async function secureFetch(url, options = {}) {
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        ...(options.headers || {})
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    if (response.status === 401 || response.status === 403) {
+        alert("Your session has expired. Please log in again.");
+        localStorage.clear();
+        window.location.href = "login.html";
+        throw new Error("Unauthorized access");
+    }
+
+    return response;
+}
+
 const isLoggedIn = localStorage.getItem("isLoggedIn");
 const userRole = localStorage.getItem("userRole");
 const userEmail = localStorage.getItem("userEmail");
@@ -336,7 +364,7 @@ function renderRoleCards(containerId, emptyId, items) {
 
 async function loadTodayActivity() {
     try {
-        const response = await fetch("http://localhost:5000/admin/today-activity");
+        const response = await secureFetch("http://localhost:5000/admin/today-activity");
         const data = await response.json();
 
         if (!data.success) {
@@ -396,7 +424,7 @@ async function openCampSelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await fetch("http://localhost:5000/camps");
+        const response = await secureFetch("http://localhost:5000/camps");
         const data = await response.json();
 
         if (data.success && data.camps.length > 0) {
@@ -428,7 +456,7 @@ async function openSupplierSelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await fetch("http://localhost:5000/suppliers");
+        const response = await secureFetch("http://localhost:5000/suppliers");
         const data = await response.json();
 
         if (data.success && data.suppliers.length > 0) {
@@ -460,7 +488,7 @@ async function openInventorySelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await fetch("http://localhost:5000/inventories");
+        const response = await secureFetch("http://localhost:5000/inventories");
         const data = await response.json();
 
         if (data.success && data.inventories.length > 0) {
