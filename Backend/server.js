@@ -15,7 +15,11 @@ const db = mysql.createConnection({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD || "root",
-    database: process.env.DB_NAME || "disaster_relief_db_final"
+    database: process.env.DB_NAME || "disaster_relief_db_final",
+    port: process.env.DB_PORT || 3306,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 db.connect((err) => {
@@ -27,49 +31,6 @@ db.connect((err) => {
 });
 
 const dbPromise = db.promise();
-
-async function ensureSupplyPriorityColumn() {
-    try {
-        const databaseName = process.env.DB_NAME || "disaster_relief_db_final";
-        const [rows] = await dbPromise.query(
-            `SELECT COLUMN_NAME FROM information_schema.columns
-             WHERE table_schema = ? AND table_name = 'supply' AND column_name = 'priority_level'`,
-            [databaseName]
-        );
-
-        if (rows.length === 0) {
-            console.log("Adding missing supply.priority_level column...");
-            await dbPromise.query(
-                `ALTER TABLE supply ADD COLUMN priority_level VARCHAR(20) NOT NULL DEFAULT 'MEDIUM'`
-            );
-        }
-    } catch (err) {
-        console.error("Error ensuring supply.priority_level column:", err.message);
-    }
-}
-
-ensureSupplyPriorityColumn();
-
-async function ensureCampDispatchHistoryTable() {
-    try {
-        await dbPromise.query(
-            `CREATE TABLE IF NOT EXISTS camp_dispatch_history (
-                dispatch_id INT AUTO_INCREMENT PRIMARY KEY,
-                camp_id INT NOT NULL,
-                stock_id INT,
-                resource_id INT,
-                resource_name VARCHAR(100),
-                quantity_dispatched INT NOT NULL,
-                dispatch_date DATE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )`
-        );
-    } catch (err) {
-        console.error("Error ensuring camp_dispatch_history table:", err.message);
-    }
-}
-
-ensureCampDispatchHistoryTable();
 
 // Serve frontend files
 app.use(express.static(path.join(__dirname, "../Frontend")));
