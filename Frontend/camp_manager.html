@@ -474,7 +474,7 @@ function applyReadOnlyState() {
 
 async function loadCampDetails() {
     try {
-        const res = await secureFetch(`http://localhost:5000/camp-details?camp_id=${campId}`);
+        const res = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/camp-details?camp_id=${campId}`);
         const data = await res.json();
 
         document.getElementById("campName").textContent = data.camp_name || "N/A";
@@ -493,7 +493,7 @@ async function loadCampStock() {
     const emptyState = document.getElementById("stockEmptyState");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/camp-stock?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/camp-stock?camp_id=${campId}`);
         const data = await response.json();
 
         tbody.innerHTML = "";
@@ -521,7 +521,7 @@ async function loadCampStock() {
 
 async function loadResources() {
     try {
-        const response = await secureFetch("http://localhost:5000/resources-list");
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/resources-list");
         const data = await response.json();
         const select = document.getElementById("resourceSelect");
         const resources = data.resources || data;
@@ -545,7 +545,7 @@ async function loadMyRequests() {
     const tableCount = document.getElementById("tableCount");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/requests?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/requests?camp_id=${campId}`);
         const data = await response.json();
 
         tbody.innerHTML = "";
@@ -601,7 +601,7 @@ document.getElementById("raiseRequestForm").addEventListener("submit", async fun
     }
 
     try {
-        const response = await secureFetch("http://localhost:5000/requests", {
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/requests", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -633,7 +633,7 @@ async function loadDispatchStock() {
     const count = document.getElementById("dispatchStockCount");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/camp-stock?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/camp-stock?camp_id=${campId}`);
         const data = await response.json();
 
         if (!data || data.length === 0) {
@@ -705,7 +705,7 @@ document.getElementById("dispatchForm").addEventListener("submit", async functio
     const quantity = parseInt(document.getElementById("dispatchQty").value, 10);
 
     try {
-        const response = await secureFetch("http://localhost:5000/dispatch-camp-stock", {
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/dispatch-camp-stock", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -737,7 +737,7 @@ async function loadCampStockDispatchHistory() {
     const count = document.getElementById("campDispatchHistoryCount");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/camp-dispatch-history?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/camp-dispatch-history?camp_id=${campId}`);
         const data = await response.json();
 
         if (!data.success || !data.dispatches || data.dispatches.length === 0) {
@@ -775,7 +775,7 @@ async function loadDispatchHistory() {
     const count = document.getElementById("dispatchHistoryCount");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/camp-fulfillment-history?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/camp-fulfillment-history?camp_id=${campId}`);
         const data = await response.json();
 
         if (!data.success || !data.deliveries || data.deliveries.length === 0) {
@@ -818,7 +818,7 @@ async function loadApprovedRequests() {
     const count = document.getElementById("approvedRequestsCount");
 
     try {
-        const response = await secureFetch(`http://localhost:5000/approved-requests?camp_id=${campId}`);
+        const response = await secureFetch(`https://disaster-relief-backend-5dw6.onrender.com/approved-requests?camp_id=${campId}`);
         const data = await response.json();
 
         if (!data.success || !data.requests || data.requests.length === 0) {

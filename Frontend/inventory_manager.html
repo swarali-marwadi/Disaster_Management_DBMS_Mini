@@ -410,7 +410,7 @@ async function loadInventoryDetails() {
     document.getElementById("userEmail").textContent = userEmail;
 
     try {
-        const response = await fetch("http://localhost:5000/inventories");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/inventories");
         const data = await response.json();
 
         let inventories = [];
@@ -452,7 +452,7 @@ async function loadPendingRequests() {
     const count = document.getElementById("pendingRequestsCount");
 
     try {
-        const response = await secureFetch("http://localhost:5000/requests", {
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/requests", {
             method: "GET", // Always good practice to specify the method
             headers: {
                 "Content-Type": "application/json",
@@ -510,7 +510,7 @@ async function loadPendingRequests() {
 
 async function updateRequestStatus(requestId, status) {
     try {
-        const response = await fetch("http://localhost:5000/update-request-status", {
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/update-request-status", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ requestId, status })
@@ -538,7 +538,7 @@ async function loadCompletedRequests() {
     const count = document.getElementById("completedRequestsCount");
 
     try {
-        const response = await fetch("http://localhost:5000/requests");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/requests");
         const data = await response.json();
 
         const completedRequests = (data.success && Array.isArray(data.requests))
@@ -581,9 +581,9 @@ async function loadCompletedRequests() {
 async function loadSupplierFormOptions() {
     try {
         const [suppliers, inventories, resources] = await Promise.all([
-            secureFetch("http://localhost:5000/suppliers").then(r => r.json()),
-            secureFetch("http://localhost:5000/inventories").then(r => r.json()),
-            secureFetch("http://localhost:5000/resources-simple").then(r => r.json())
+            secureFetch("https://disaster-relief-backend-5dw6.onrender.com/suppliers").then(r => r.json()),
+            secureFetch("https://disaster-relief-backend-5dw6.onrender.com/inventories").then(r => r.json()),
+            secureFetch("https://disaster-relief-backend-5dw6.onrender.com/resources-simple").then(r => r.json())
         ]);
 
         const supplierSelect = document.getElementById("supplierSelect");
@@ -632,7 +632,7 @@ async function loadSupplyHistory() {
     const count = document.getElementById("supplyHistoryCount");
 
     try {
-        const response = await fetch("http://localhost:5000/supply");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/supply");
         const data = await response.json();
 
         if (!data.success || !data.supplies || data.supplies.length === 0) {
@@ -672,7 +672,7 @@ async function loadDispatchHistory() {
     const count = document.getElementById("dispatchHistoryCount");
 
     try {
-        const response = await fetch("http://localhost:5000/supplier-fulfillments");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/supplier-fulfillments");
         const data = await response.json();
 
         if (!data.success || !data.deliveries || data.deliveries.length === 0) {
@@ -722,7 +722,7 @@ document.getElementById("supplierOrderForm").addEventListener("submit", async fu
     }
 
     try {
-        const response = await fetch("http://localhost:5000/supply", {
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/supply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ supplierId: parseInt(supplierId, 10), inventoryId: parseInt(inventoryId, 10), resourceId: parseInt(resourceId, 10), quantitySupplied })
@@ -750,7 +750,7 @@ async function loadInventory() {
     const count = document.getElementById("inventoryCount");
 
     try {
-        const response = await fetch("http://localhost:5000/inventory");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/inventory");
         const data = await response.json();
 
         let inventoryRows = [];
@@ -801,7 +801,7 @@ async function loadApprovedRequests() {
     const count = document.getElementById("requestsCount");
 
     try {
-        const response = await fetch("http://localhost:5000/requests");
+        const response = await fetch("https://disaster-relief-backend-5dw6.onrender.com/requests");
         const data = await response.json();
 
         if (!data.success || !data.requests) {
@@ -890,7 +890,7 @@ document.getElementById("dispatchForm").addEventListener("submit", async functio
     const quantity = parseInt(document.getElementById("dispatchQty").value);
 
     try {
-        const response = await secureFetch("http://localhost:5000/dispatch", {
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/dispatch", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

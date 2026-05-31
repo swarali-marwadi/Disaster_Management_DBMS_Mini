@@ -364,7 +364,7 @@ function renderRoleCards(containerId, emptyId, items) {
 
 async function loadTodayActivity() {
     try {
-        const response = await secureFetch("http://localhost:5000/admin/today-activity");
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/admin/today-activity");
         const data = await response.json();
 
         if (!data.success) {
@@ -424,7 +424,7 @@ async function openCampSelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await secureFetch("http://localhost:5000/camps");
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/camps");
         const data = await response.json();
 
         if (data.success && data.camps.length > 0) {
@@ -456,7 +456,7 @@ async function openSupplierSelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await secureFetch("http://localhost:5000/suppliers");
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/suppliers");
         const data = await response.json();
 
         if (data.success && data.suppliers.length > 0) {
@@ -488,7 +488,7 @@ async function openInventorySelector() {
     modal.classList.remove("hidden");
 
     try {
-        const response = await secureFetch("http://localhost:5000/inventories");
+        const response = await secureFetch("https://disaster-relief-backend-5dw6.onrender.com/inventories");
         const data = await response.json();
 
         if (data.success && data.inventories.length > 0) {
