@@ -261,7 +261,7 @@ Maintained using:
 
 The complete database schema, table definitions, constraints, and implementation details are documented in:
 
-**Final_DisasterDatabase.md**
+[Final_DisasterDatabase.md](Final_DisasterDatabase.md)
 
 ---
 
