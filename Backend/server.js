@@ -82,6 +82,11 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// Health check route for UptimeRobot
+app.get('/ping', (req, res) => {
+    res.status(200).send('Server is awake and healthy!');
+});
+
 // ===== THE MIDDLEWARE BOUNCER =====
 function authenticateToken(req, res, next) {
     // The frontend sends the token in the 'Authorization' header
