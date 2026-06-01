@@ -253,10 +253,8 @@ Maintained using:
 
 # Entity Relationship Diagram
 
-Add your ER Diagram image here.
-
 ```md
-[![Entity Relationship Diagram](Output/er-diagram.png)](Output/er-diagram.png)
+[![Entity Relationship Diagram](Output\er-diagram.png)](Output\er-diagram.png)
 ```
 
 ---
