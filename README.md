@@ -1,247 +1,487 @@
 # Disaster Relief Resource Management System
 
-A role-based disaster relief management web application built with `Node.js`, `Express`, `MySQL`, and static HTML/Tailwind pages.
+A full-stack, role-based Disaster Relief Management System developed to streamline disaster response operations through centralized data management, resource tracking, relief camp administration, supplier coordination, and inventory monitoring.
 
-This project helps coordinate relief operations across:
-- `Admin`
-- `Camp Manager`
-- `Inventory Manager`
-- `Supplier`
+Built as part of a **Database Management Systems (DBMS)** course, this project demonstrates the practical application of relational database design, normalization, SQL operations, cloud database deployment, and role-based workflow management.
 
-It supports camp requests, inventory dispatch, supplier order handling, stock visibility, and an admin activity overview.
+---
 
-## Overview
+## Academic Focus
 
-The system models a relief workflow where camps raise resource requests, inventories fulfill them based on available stock, and suppliers replenish inventories when needed. Admins can monitor the system and open read-only views of camps, inventories, and suppliers.
+This project showcases the implementation of core DBMS concepts, including:
 
-## Key Features
+* Relational Database Design
+* Entity Relationship Modeling (ERD)
+* Database Normalization (up to 3NF)
+* Primary & Foreign Key Constraints
+* Referential Integrity
+* SQL Queries and Joins
+* Inventory Management Systems
+* Transaction-Based Operations
+* Cloud Database Deployment
 
-### Admin
-- View a role-wise dashboard of today's activity
-- Open camps, inventories, and suppliers in `read-only` mode
-- Monitor requests, dispatches, supplier orders, and deliveries
+---
 
-### Camp Manager
-- View camp details and current camp stock
-- Raise resource requests with priority
-- Track request fulfillment status
-- View supplies received history
-- Dispatch camp stock and view dispatch history
+## Live Deployment
 
-### Inventory Manager
-- View inventory details and stock levels
-- Fulfill pending and partial camp requests
-- Track completed camp requests
-- Raise supplier orders with priority
-- Monitor supplier order status and dispatch activity
+### Frontend
 
-### Supplier
-- View incoming supplier requests
-- Approve and complete supply orders
-- Track completed deliveries
-- View supplier-specific read-only pages from admin mode
+https://magnificent-squirrel-994b84.netlify.app/login.html
 
-## Tech Stack
+### Database
 
-- `Frontend`: HTML, Tailwind CSS, vanilla JavaScript
-- `Backend`: Node.js, Express
-- `Database`: MySQL
-- `Packages`: `express`, `cors`, `mysql2`
+Aiven Cloud MySQL Database
 
-## Project Structure
+### Monitoring
+
+UptimeRobot
+
+---
+
+# Problem Statement
+
+During natural disasters, relief operations often suffer from fragmented information systems, delayed communication, inventory mismanagement, and inefficient resource allocation.
+
+Relief agencies require a centralized platform to:
+
+* Manage disaster information
+* Track affected areas
+* Coordinate relief camps
+* Monitor inventory levels
+* Process resource requests
+* Manage suppliers and incoming aid
+* Maintain accurate operational records
+
+The Disaster Relief Management System addresses these challenges through a structured relational database and a role-based management platform.
+
+---
+
+# Project Objectives
+
+* Centralize disaster management data
+* Improve resource allocation efficiency
+* Reduce data redundancy
+* Enable real-time inventory tracking
+* Manage relief camps effectively
+* Support informed decision-making during emergencies
+* Maintain accurate records of resource distribution
+
+---
+
+# Key Features
+
+## Disaster Management
+
+* Register disaster-related information
+* Maintain affected area records
+* Track relief operations centrally
+
+## Relief Camp Management
+
+* Manage camp details and capacity
+* Monitor camp inventory
+* Raise resource requests
+
+## Inventory Management
+
+* Maintain centralized inventory records
+* Track stock levels
+* Dispatch resources to camps
+
+## Supplier Management
+
+* Process supplier requests
+* Track deliveries
+* Replenish inventory stocks
+
+## Administrative Monitoring
+
+* View system-wide activity
+* Monitor requests, dispatches, and deliveries
+* Access operational dashboards
+
+## Authentication & Access Control
+
+* Role-based access management
+* Controlled operational views
+
+---
+
+# User Roles
+
+The system follows a role-based operational model.
+
+| Role              | Responsibilities                                                     |
+| ----------------- | -------------------------------------------------------------------- |
+| Admin             | Monitor operations, dashboards, requests, dispatches, and deliveries |
+| Camp Manager      | Manage camp inventory, raise resource requests, track fulfillment    |
+| Inventory Manager | Manage inventory stock, fulfill requests, create supplier orders     |
+| Supplier          | Approve supply requests, complete deliveries, track supply history   |
+
+---
+
+# Disaster Relief Workflow
+
+The application models a real-world disaster relief supply chain:
+
+1. Relief camps raise resource requests.
+2. Inventory managers review pending requests.
+3. Available stock is dispatched to camps.
+4. Supplier orders are generated when inventory requires replenishment.
+5. Suppliers fulfill orders and replenish inventory.
+6. Administrators monitor all activities through centralized dashboards.
+
+---
+
+# System Architecture
 
 ```text
-Disaster_Management_DBMS_Mini/
-├── Backend/
+User
+   │
+   ▼
+Frontend (HTML, CSS, JavaScript)
+   │
+   ▼
+Node.js + Express Backend
+   │
+   ▼
+MySQL Database (Aiven)
+```
+
+### Deployment Architecture
+
+```text
+Netlify
+   │
+   ▼
+Node.js + Express Backend
+   │
+   ▼
+Aiven Cloud MySQL Database
+```
+
+---
+
+# Database Highlights
+
+The database consists of multiple interconnected entities representing disaster relief operations.
+
+### Major Entities
+
+| Entity              | Description                      |
+| ------------------- | -------------------------------- |
+| Disaster            | Stores disaster information      |
+| Affected Area       | Stores impacted regions          |
+| Relief Camp         | Camp management records          |
+| Resource            | Resource catalog                 |
+| Central Inventory   | Central warehouse stock          |
+| Camp Stock          | Resource stock at camps          |
+| Resource Request    | Requests raised by camps         |
+| Request Fulfillment | Distribution tracking            |
+| Supplier            | Supplier information             |
+| Supply              | Incoming supplies                |
+| User                | Authentication and authorization |
+
+---
+
+# DBMS Concepts Implemented
+
+## Entity Relationship Modeling
+
+Designed a relational schema representing:
+
+* Disaster
+* Affected Area
+* Relief Camp
+* Resource
+* Inventory
+* Supplier
+* User
+
+## Normalization
+
+Database normalized to reduce:
+
+* Data redundancy
+* Update anomalies
+* Insertion anomalies
+* Deletion anomalies
+
+## Relationships
+
+### One-to-Many
+
+* One Disaster → Many Affected Areas
+* One Relief Camp → Many Resource Requests
+
+### Many-to-Many
+
+Implemented using transactional and linking tables.
+
+Examples:
+
+* Camps ↔ Resources
+* Suppliers ↔ Resources
+
+## Constraints
+
+* Primary Keys
+* Foreign Keys
+* Unique Constraints
+* ENUM Constraints
+
+## SQL Operations
+
+* SELECT
+* INSERT
+* UPDATE
+* DELETE
+* JOIN
+* GROUP BY
+* Aggregate Functions
+* Nested Queries
+
+## Data Integrity
+
+Maintained using:
+
+* Referential Integrity
+* Foreign Key Constraints
+* Controlled Data Validation
+
+---
+
+# Entity Relationship Diagram
+
+Add your ER Diagram image here.
+
+```md
+![ER Diagram](images/er-diagram.png)
+```
+
+---
+
+# Database Documentation
+
+The complete database schema, table definitions, constraints, and implementation details are documented in:
+
+**Final_DisasterDatabase.md**
+
+---
+
+# Repository Structure
+
+```text
+Disaster_Management_DBMS_Mini
+│
+├── Backend
+│   ├── server.js
+│   ├── seedUsers.js
 │   ├── package.json
-│   └── server.js
-├── Frontend/
+│   ├── package-lock.json
+│   └── .env
+│
+├── Frontend
 │   ├── admin.html
 │   ├── camp_manager.html
 │   ├── inventory_manager.html
 │   ├── login.html
 │   ├── resource_management.html
-│   └── supplier.html
+│   ├── supplier.html
+│   └── index.html
+│
 ├── Final_DisasterDatabase.md
-└── README.md
+├── README.md
 ```
 
-## Database Design
+---
 
-The schema is based on the entities below:
-- `disaster`
-- `affected_area`
-- `central_inventory`
-- `relief_camp`
-- `resource`
-- `supplier`
-- `inventory_stock`
-- `camp_stock`
-- `supply`
-- `resource_request`
-- `request_fulfillment`
-- `camp_dispatch_history`
+# Technology Stack
 
-The detailed SQL creation/insertion notes are available in [Final_DisasterDatabase.md](/c:/Users/shara/Desktop/Disaster_Management_DBMS_Mini/Final_DisasterDatabase.md).
+## Frontend
 
-## Prerequisites
+* HTML5
+* Tailwind CSS
+* JavaScript
 
-Before running the project, make sure you have:
-- `Node.js` installed
-- `MySQL 8+` installed and running
-- a MySQL database created for this project
+## Backend
 
-## Installation
+* Node.js
+* Express.js
 
-### 1. Clone or open the project
+## Database
 
-```powershell
-cd C:\Users\shara\Desktop\Disaster_Management_DBMS_Mini
+* MySQL
+
+## Cloud Services
+
+* Aiven Database Hosting
+* Netlify Frontend Hosting
+* Render Backend Hosting
+* UptimeRobot Monitoring
+
+## Development Tools
+
+* Visual Studio Code
+* Git
+* GitHub
+
+---
+
+# Related Output Images
+
+## Login Page
+
+Add screenshot here.
+
+## Admin Dashboard
+
+Add screenshot here.
+
+## Camp Manager Dashboard
+
+Add screenshot here.
+
+## Inventory Manager Dashboard
+
+Add screenshot here.
+
+## Supplier Dashboard
+
+Add screenshot here.
+
+---
+
+# Local Setup
+
+## Clone Repository
+
+```bash
+git clone https://github.com/swarali-marwadi/Disaster_Management_DBMS_Mini.git
+cd Disaster_Management_DBMS_Mini
 ```
 
-### 2. Install backend dependencies
+## Backend Setup
 
-```powershell
+```bash
 cd Backend
 npm install
-```
-
-### 3. Configure the database connection
-
-The backend reads these environment variables:
-- `DB_HOST`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_NAME`
-- `PORT`
-
-Example in PowerShell:
-
-```powershell
-$env:DB_HOST="localhost"
-$env:DB_USER="root"
-$env:DB_PASSWORD="your_password"
-$env:DB_NAME="disaster_relief_db_final"
-$env:PORT="5000"
-```
-
-## Running the Application
-
-From the `Backend` folder:
-
-```powershell
 npm start
 ```
 
-The server will start on:
+## Frontend
+
+Open:
 
 ```text
-http://localhost:5000
+Frontend/login.html
 ```
 
-Open this in your browser:
+in your browser.
 
-```text
-http://localhost:5000
+---
+
+# Sample SQL Queries
+
+### Total Population Affected by Each Disaster
+
+```sql
+SELECT d.disaster_name,
+SUM(a.population_affected) AS total_population
+FROM disaster d
+JOIN affected_area a
+ON d.disaster_id = a.disaster_id
+GROUP BY d.disaster_name;
 ```
 
-## Default Flow
+### Resources Available in Each Camp
 
-1. Open `login.html`
-2. Choose a role and sign in
-3. Use the role-specific page:
-   - `Admin` -> `admin.html`
-   - `Camp Manager` -> `camp_manager.html`
-   - `Inventory Manager` -> `inventory_manager.html`
-   - `Supplier` -> `supplier.html`
-
-## Important Notes
-
-### Role access
-- The app uses frontend role checks via `localStorage`
-- Admin can open camp, inventory, and supplier pages in read-only mode
-- Role labels in the header/sidebar stay consistent during admin read-only navigation
-
-### Dynamic views
-- Camp pages support `camp_id`
-- Inventory pages support `inventory_id`
-- Supplier pages support `supplier_id`
-
-Examples:
-
-```text
-camp_manager.html?camp_id=4&readOnly=true
-inventory_manager.html?inventory_id=1&readOnly=true
-supplier.html?supplier_id=1&readOnly=true
+```sql
+SELECT rc.camp_name,
+r.resource_name,
+cs.quantity_available
+FROM camp_stock cs
+JOIN relief_camp rc
+ON rc.camp_id = cs.camp_id
+JOIN resource r
+ON r.resource_id = cs.resource_id;
 ```
 
-### Backend compatibility helpers
+### Pending Resource Requests
 
-The server includes small schema-safety helpers that create or add missing pieces when needed, such as:
-- `supply.status`
-- `supply.priority_level`
-- `camp_dispatch_history`
-
-## Example Data Already Reflected in the Project
-
-From the provided database notes, the sample setup includes:
-- `Pune Relief Hub` as a central inventory
-- `Birla Relief Supplies` as a supplier
-- `Ambegoan_Flood` as a relief camp
-- resources like:
-  - `Water Bottles`
-  - `Meal Kits`
-  - `First Aid Kits`
-  - `Thermal Blankets`
-  - `LED Torches`
-  - `Wheelchairs`
-
-## Available Backend Script
-
-From [Backend/package.json](/c:/Users/shara/Desktop/Disaster_Management_DBMS_Mini/Backend/package.json):
-
-```powershell
-npm start
+```sql
+SELECT *
+FROM resource_request
+WHERE status = 'Pending';
 ```
 
-## Current Status
+---
 
-The application currently includes:
-- polished role-based pages for admin, camp, inventory, and supplier
-- admin read-only viewing across operational pages
-- camp request and dispatch tracking
-- inventory dispatch and supplier order flow
-- supplier completion flow
-- admin daily activity overview
+# Current Status
 
-## Future Improvements
+Implemented Features:
 
-- stronger authentication instead of local role simulation
-- `.env` support for database configuration
-- seed SQL script for one-click setup
-- automated tests for API routes
-- better validation and error messaging
-- deployment-ready production configuration
+* Role-based dashboards
+* Camp request management
+* Inventory dispatch workflow
+* Supplier order processing
+* Admin monitoring dashboard
+* Cloud-hosted MySQL database integration
+* Read-only operational views for administrators
+* Resource fulfillment tracking
+* Stock visibility and inventory management
 
-## Tools and Resources Used
+---
 
-This project was developed using a combination of database design tools, development environments, UI inspiration platforms, and AI-assisted coding support.
+# Challenges Faced
 
-- **draw.io**  
-  Used to design the Entity Relationship Diagram (ERD) for structuring the database.
+* Designing a normalized relational schema
+* Maintaining referential integrity
+* Modeling real-world relief workflows
+* Integrating frontend, backend, and cloud database services
+* Managing multi-role system behavior
 
-- **Stitch**  
-  Provided initial UI inspiration and base layout ideas, later customized to fit project requirements.
+---
 
-- **Visual Studio Code**  
-  Served as the primary development environment for writing and managing the codebase.
+# Future Enhancements
 
-- **ChatGPT, Codex, VS Code Agent, and Claude**  
-  Used as AI-assisted development tools for debugging, code optimization, interface refinement, and feature enhancements.
+* Stronger authentication and authorization
+* Environment-based configuration management
+* One-click SQL database setup scripts
+* Automated API testing
+* Enhanced validation and error handling
+* Production-ready deployment configuration
+* Volunteer management module
+* Real-time notification system
+* GIS-based disaster mapping
+* Mobile application support
 
-- **GitHub**  
-  Used for version control and tracking project progress.
+---
 
-## Authoring Note
+# Tools and Resources Used
 
-This README reflects the current working version of the project in this repository and is intended to make local setup, understanding, and demo use much smoother.
+* Draw.io — ER Diagram Design
+* Visual Studio Code — Development Environment
+* GitHub — Version Control & Collaboration
+* Stitch — Initial UI Inspiration and Layout Prototyping
+* ChatGPT, Codex, VS Code Agent, and Claude — Used as AI-assisted development tools for debugging, code optimization, interface refinement, and feature enhancements.
+
+---
+
+# Academic Information
+
+**Course:** Database Management Systems (DBMS)
+
+**Project Type:** Semester Mini Project
+
+**Academic Year:** 2025–26
+
+---
+
+# License
+
+This project was developed for educational and academic purposes as part of a Database Management Systems course.
+
+---
+
+⭐ If you found this project useful, consider giving it a star.
