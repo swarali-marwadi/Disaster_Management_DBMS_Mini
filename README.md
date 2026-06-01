@@ -253,9 +253,7 @@ Maintained using:
 
 # Entity Relationship Diagram
 
-```md
 [![Entity Relationship Diagram](Output\er-diagram.png)](Output\er-diagram.png)
-```
 
 ---
 
