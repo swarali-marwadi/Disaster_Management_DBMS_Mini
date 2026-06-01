@@ -256,7 +256,7 @@ Maintained using:
 Add your ER Diagram image here.
 
 ```md
-![ER Diagram](images/er-diagram.png)
+[![Entity Relationship Diagram](Output/er-diagram.png)](Output/er-diagram.png)
 ```
 
 ---
@@ -332,23 +332,23 @@ Disaster_Management_DBMS_Mini
 
 ## Login Page
 
-Add screenshot here.
+[![Login Page](Output/login.png)](Output/login.png)
 
 ## Admin Dashboard
 
-Add screenshot here.
+[![Admin Dashboard](Output/admin.png)](Output/admin.png)
 
 ## Camp Manager Dashboard
 
-Add screenshot here.
+[![Camp Manager Dashboard](Output/camp.png)](Output/camp.png)
 
 ## Inventory Manager Dashboard
 
-Add screenshot here.
+[![Inventory Manager Dashboard](Output/inventory.png)](Output/inventory.png)
 
 ## Supplier Dashboard
 
-Add screenshot here.
+[![Supplier Dashboard](Output/supplier.png)](Output/supplier.png)
 
 ---
 
