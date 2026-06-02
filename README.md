@@ -253,7 +253,7 @@ Maintained using:
 
 # Entity Relationship Diagram
 
-[![Entity Relationship Diagram](Output/er-diagram.png)](Output/er-diagram.png)
+[![Entity Relationship Diagram](Docs/Output/er-diagram.png)](Docs/Output/er-diagram.png)
 
 ---
 
@@ -261,7 +261,7 @@ Maintained using:
 
 The complete database schema, table definitions, constraints, and implementation details are documented in:
 
-[Final_DisasterDatabase.md](Final_DisasterDatabase.md)
+[Final_DisasterDatabase.md](Docs/Final_DisasterDatabase.md)
 
 ---
 
@@ -328,23 +328,23 @@ Disaster_Management_DBMS_Mini
 
 ## Login Page
 
-[![Login Page](Output/login.png)](Output/login.png)
+[![Login Page](Docs/Output/login.png)](Docs/Output/login.png)
 
 ## Admin Dashboard
 
-[![Admin Dashboard](Output/admin.png)](Output/admin.png)
+[![Admin Dashboard](Docs/Output/admin.png)](Docs/Output/admin.png)
 
 ## Camp Manager Dashboard
 
-[![Camp Manager Dashboard](Output/camp.png)](Output/camp.png)
+[![Camp Manager Dashboard](Docs/Output/camp.png)](Docs/Output/camp.png)
 
 ## Inventory Manager Dashboard
 
-[![Inventory Manager Dashboard](Output/inventory.png)](Output/inventory.png)
+[![Inventory Manager Dashboard](Docs/Output/inventory.png)](Docs/Output/inventory.png)
 
 ## Supplier Dashboard
 
-[![Supplier Dashboard](Output/supplier.png)](Output/supplier.png)
+[![Supplier Dashboard](Docs/Output/supplier.png)](Docs/Output/supplier.png)
 
 ---
 
