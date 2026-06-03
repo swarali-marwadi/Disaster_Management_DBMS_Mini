@@ -288,7 +288,7 @@ Disaster_Management_DBMS_Mini
 │
 ├── Docs
 │   ├── Output
-│   ├── Final_DisasterDatabase.md
+│   └── Final_DisasterDatabase.md
 │
 ├── README.md
 ```
