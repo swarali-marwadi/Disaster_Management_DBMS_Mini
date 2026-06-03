@@ -286,7 +286,10 @@ Disaster_Management_DBMS_Mini
 │   ├── supplier.html
 │   └── index.html
 │
-├── Final_DisasterDatabase.md
+├── Docs
+│   ├── Output
+│   ├── Final_DisasterDatabase.md
+│
 ├── README.md
 ```
 
