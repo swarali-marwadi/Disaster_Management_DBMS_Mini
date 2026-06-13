@@ -10,8 +10,8 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// DB connection
-const db = mysql.createConnection({
+// DB connection - Upgraded to Connection Pool
+const db = mysql.createPool({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD || "root",
@@ -19,15 +19,20 @@ const db = mysql.createConnection({
     port: process.env.DB_PORT || 3306,
     ssl: {
         rejectUnauthorized: false
-    }
+    },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+// Test the pool connection on startup
+db.getConnection((err, connection) => {
     if (err) {
-        console.error("Database connection error:", err.message);
-        return;
+        console.error("Database pool connection error:", err.message);
+    } else {
+        console.log("Connected to MySQL database via Connection Pool");
+        connection.release(); // Release it back to the pool to prevent memory leaks
     }
-    console.log("Connected to MySQL database");
 });
 
 const dbPromise = db.promise();
